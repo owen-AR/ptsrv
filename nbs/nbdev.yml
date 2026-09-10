@@ -1,0 +1,14 @@
+project:
+  output-dir: _docs
+
+website:
+  title: "ptsrv"
+  site-url: "https://owen-AR.github.io/ptsrv"
+  description: ""
+  repo-branch: main
+  repo-url: "https://github.com/owen-AR/ptsrv"
+
+format-links:
+  - html
+  - format: commonmark
+    text: Markdown

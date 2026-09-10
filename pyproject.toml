@@ -1,0 +1,42 @@
+[build-system]
+requires = ["setuptools>=64"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "ptsrv"
+dynamic = ["version"]
+description = ""
+readme = "README.md"
+requires-python = ">=3.10"
+license = {text = "Apache-2.0"}
+authors = [{name = "Solveit", email = "nobody@fast.ai"}]
+keywords = ['nbdev']
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3 :: Only",
+]
+dependencies = [
+    "numpy",
+    "scipy",
+    "pillow",
+    "pye57",
+    "fastapi",
+    "uvicorn[standard]",
+    "boto3",
+    "python-fasthtml",
+]
+
+[project.urls]
+Repository = "https://github.com/owen-AR/ptsrv"
+Documentation = "https://owen-AR.github.io/ptsrv/"
+
+[project.entry-points.nbdev]
+ptsrv = "ptsrv._modidx:d"
+
+[tool.setuptools.dynamic]
+version = {attr = "ptsrv.__version__"}
+
+[tool.setuptools.packages.find]
+include = ["ptsrv"]
+
+[tool.nbdev]
