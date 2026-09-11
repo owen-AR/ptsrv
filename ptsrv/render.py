@@ -11,7 +11,7 @@ from __future__ import annotations
 __all__ = ['Style', 'RenderResult', 'render_plan', 'render_section', 'render_elevation']
 
 # %% ../nbs/01_render.ipynb #4cc6c4ac
-from .cloud import Cloud
+from .cloud import Cloud, CloudInfo
 
 # %% ../nbs/01_render.ipynb #fe735a5a
 import io
