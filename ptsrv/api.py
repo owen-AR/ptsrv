@@ -46,6 +46,8 @@ Rendering is CPU-bound and stateless; a single worker on a small box handles a
 ALIGNED frame (see rotation_deg in /scans/{name}); world files are written for
 that frame.
 """
+
+# %% ../nbs/04_api.ipynb #394c9133
 from __future__ import annotations
 
 import glob
@@ -59,6 +61,25 @@ from fastapi.responses import JSONResponse
 from .cloud import CloudCache
 from .render import render_plan, render_section, render_elevation, RenderResult
 
+# %% ../nbs/04_api.ipynb #394c9133
+from __future__ import annotations
+
+import glob
+import os
+import threading
+import time
+
+from fastapi import FastAPI, HTTPException, Query, Response
+from fastapi.responses import JSONResponse
+
+from .cloud import CloudCache
+from .render import render_plan, render_section, render_elevation, RenderResult
+
+# %% auto #0
+__all__ = ['DATA_DIR', 'MAX_POINTS', 'ALIGN', 'MAX_PIXELS', 'CACHE_ITEMS', 'app', 'list_scans', 'scan_info', 'reload_scan',
+           'plan', 'section', 'elevation', 'health']
+
+# %% ../nbs/04_api.ipynb #800b29f6
 DATA_DIR = os.environ.get("SCANPLAN_DATA", "./data")
 MAX_POINTS = int(os.environ.get("SCANPLAN_MAX_POINTS", "0")) or None   # e.g. 20000000 on a small box
 ALIGN = os.environ.get("SCANPLAN_ALIGN", "auto")                       # auto | 0 | <degrees>
@@ -230,8 +251,3 @@ def elevation(name: str, a: str, b: str,
 @app.get("/health")
 def health():
     return {"ok": True, "data_dir": DATA_DIR}
-
-
-# %% auto #0
-__all__ = ['DATA_DIR', 'MAX_POINTS', 'ALIGN', 'MAX_PIXELS', 'CACHE_ITEMS', 'app', 'list_scans', 'scan_info', 'reload_scan',
-           'plan', 'section', 'elevation', 'health']

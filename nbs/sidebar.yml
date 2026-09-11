@@ -1,0 +1,11 @@
+website:
+  sidebar:
+    contents:
+      - index.ipynb
+      - 00_cloud.ipynb
+      - 01_render.ipynb
+      - 02_storage.ipynb
+      - 03_jobs.ipynb
+      - 04_api.ipynb
+      - 05_web.ipynb
+      - 06_cli.ipynb

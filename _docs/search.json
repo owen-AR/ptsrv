@@ -1,0 +1,119 @@
+[
+  {
+    "objectID": "render.html",
+    "href": "render.html",
+    "title": "ptsrv.render",
+    "section": "",
+    "text": "All renders share one core: project points into a 2-D image plane, keep the point nearest the viewer per pixel (z-buffer), then optionally\n\nfill small gaps (nearest-neighbour within a radius) so sparse LiDAR slices read as surfaces,\ndraw the “cut face” (points within a thin band at the cut plane) in a solid colour on top, which gives the heavy wall lines of an architectural plan/section,\nwrite a world file / DPI so the PNG is at true scale in CAD and print.\n\nCoordinate conventions * Plan: image x = world +X (east), image y (down) = world -Y (north up). * Section: image x = along the section line A-&gt;B, image y (down) = -Z. The viewer stands on the side of the line given by side (left/right when walking A-&gt;B) and looks toward the other side; points between the line and depth metres beyond it are drawn.\n\n\nsource\n\n\ndef RenderResult(\n    image:Image.Image, pixel_size:float, origin:tuple[float, float], frame:dict, stats:dict=&lt;factory&gt;\n)-&gt;None:\nRenderResult(image: ‘Image.Image’, pixel_size: ‘float’, origin: ‘tuple[float, float]’, frame: ‘dict’, stats: ‘dict’ = )\n\n\n\n\nsource\n\n\ndef render_plan(\n    cloud:Cloud, *, cut_height:float=1.2, level:float | None=None, below:float | None=None, look:str='down',\n    pixel_size:float=0.005, style:Style='hybrid', bounds:tuple[float, float, float, float] | None=None,\n    margin:float=0.25, fill_radius:float=0.02, cut_band:float=0.03, cut_colour:tuple=(0, 0, 0),\n    cut_thicken:float=0.0, background:tuple=(255, 255, 255), max_pixels:int=60000000\n)-&gt;RenderResult:\nRender a floor plan.\ncut_height height of the cut plane above level (m). Standard is 1.0–1.2. level world Z of the floor; default = detected floor. below how far below the cut plane to keep points (default: down to 0.05 m below floor). Use to hide lower storeys. look “down” (floor plan) or “up” (reflected ceiling plan; then cut_height is measured up from level and points ABOVE the cut are drawn). bounds (xmin, ymin, xmax, ymax) crop in world coords; default = whole cloud. cut_band thickness (m) of the slab at the cut plane drawn in cut_colour. 0 disables. style color | depth | density | hybrid\n\n\n\n\nsource\n\n\ndef render_section(\n    cloud:Cloud, *, a:tuple[float, float], b:tuple[float, float], depth:float=1.0, side:str='left',\n    zmin:float | None=None, zmax:float | None=None, pixel_size:float=0.005, style:Style='hybrid', margin:float=0.15,\n    fill_radius:float=0.02, cut_band:float=0.03, cut_colour:tuple=(0, 0, 0), cut_thicken:float=0.0,\n    background:tuple=(255, 255, 255), max_pixels:int=60000000\n)-&gt;RenderResult:\nRender a vertical section / elevation.\na, b endpoints of the section line in world XY (m). side which side of the line the viewer stands on when walking a -&gt; b: “left” or “right”. The view looks across the line and shows everything from the line to depth metres on the far side. depth how far beyond the cut plane to draw (m). Small (0.2) = pure section slice; large = section + elevation of what is behind. zmin/zmax vertical crop; default = cloud floor-0.1 .. ceiling+0.1.\nThe image is a true (un-mirrored) view from the viewer’s position: side=“right” -&gt; a is on the image’s left, b on the right; side=“left” -&gt; b is on the image’s left, a on the right. frame[\"image_left_is\"] in the result records which.\n\n\n\n\nsource\n\n\ndef render_elevation(\n    cloud:Cloud, *, a, b, side:str='left', depth:float=50.0, **kw\n)-&gt;RenderResult:\nElevation = section with a large depth and no cut band.",
+    "crumbs": [
+      "ptsrv.render"
+    ]
+  },
+  {
+    "objectID": "render.html#orthographic-raster-rendering-of-plans-and-sections-from-a-point-cloud.",
+    "href": "render.html#orthographic-raster-rendering-of-plans-and-sections-from-a-point-cloud.",
+    "title": "ptsrv.render",
+    "section": "",
+    "text": "All renders share one core: project points into a 2-D image plane, keep the point nearest the viewer per pixel (z-buffer), then optionally\n\nfill small gaps (nearest-neighbour within a radius) so sparse LiDAR slices read as surfaces,\ndraw the “cut face” (points within a thin band at the cut plane) in a solid colour on top, which gives the heavy wall lines of an architectural plan/section,\nwrite a world file / DPI so the PNG is at true scale in CAD and print.\n\nCoordinate conventions * Plan: image x = world +X (east), image y (down) = world -Y (north up). * Section: image x = along the section line A-&gt;B, image y (down) = -Z. The viewer stands on the side of the line given by side (left/right when walking A-&gt;B) and looks toward the other side; points between the line and depth metres beyond it are drawn.\n\n\nsource\n\n\ndef RenderResult(\n    image:Image.Image, pixel_size:float, origin:tuple[float, float], frame:dict, stats:dict=&lt;factory&gt;\n)-&gt;None:\nRenderResult(image: ‘Image.Image’, pixel_size: ‘float’, origin: ‘tuple[float, float]’, frame: ‘dict’, stats: ‘dict’ = )\n\n\n\n\nsource\n\n\ndef render_plan(\n    cloud:Cloud, *, cut_height:float=1.2, level:float | None=None, below:float | None=None, look:str='down',\n    pixel_size:float=0.005, style:Style='hybrid', bounds:tuple[float, float, float, float] | None=None,\n    margin:float=0.25, fill_radius:float=0.02, cut_band:float=0.03, cut_colour:tuple=(0, 0, 0),\n    cut_thicken:float=0.0, background:tuple=(255, 255, 255), max_pixels:int=60000000\n)-&gt;RenderResult:\nRender a floor plan.\ncut_height height of the cut plane above level (m). Standard is 1.0–1.2. level world Z of the floor; default = detected floor. below how far below the cut plane to keep points (default: down to 0.05 m below floor). Use to hide lower storeys. look “down” (floor plan) or “up” (reflected ceiling plan; then cut_height is measured up from level and points ABOVE the cut are drawn). bounds (xmin, ymin, xmax, ymax) crop in world coords; default = whole cloud. cut_band thickness (m) of the slab at the cut plane drawn in cut_colour. 0 disables. style color | depth | density | hybrid\n\n\n\n\nsource\n\n\ndef render_section(\n    cloud:Cloud, *, a:tuple[float, float], b:tuple[float, float], depth:float=1.0, side:str='left',\n    zmin:float | None=None, zmax:float | None=None, pixel_size:float=0.005, style:Style='hybrid', margin:float=0.15,\n    fill_radius:float=0.02, cut_band:float=0.03, cut_colour:tuple=(0, 0, 0), cut_thicken:float=0.0,\n    background:tuple=(255, 255, 255), max_pixels:int=60000000\n)-&gt;RenderResult:\nRender a vertical section / elevation.\na, b endpoints of the section line in world XY (m). side which side of the line the viewer stands on when walking a -&gt; b: “left” or “right”. The view looks across the line and shows everything from the line to depth metres on the far side. depth how far beyond the cut plane to draw (m). Small (0.2) = pure section slice; large = section + elevation of what is behind. zmin/zmax vertical crop; default = cloud floor-0.1 .. ceiling+0.1.\nThe image is a true (un-mirrored) view from the viewer’s position: side=“right” -&gt; a is on the image’s left, b on the right; side=“left” -&gt; b is on the image’s left, a on the right. frame[\"image_left_is\"] in the result records which.\n\n\n\n\nsource\n\n\ndef render_elevation(\n    cloud:Cloud, *, a, b, side:str='left', depth:float=50.0, **kw\n)-&gt;RenderResult:\nElevation = section with a large depth and no cut band.",
+    "crumbs": [
+      "ptsrv.render"
+    ]
+  },
+  {
+    "objectID": "cli.html",
+    "href": "cli.html",
+    "title": "ptsrv.cli",
+    "section": "",
+    "text": "info scan.e57\nplan scan.e57 out.png [–cut 1.2] [–px 0.005] [–style hybrid] [–look up] [–scale 50]\nsection scan.e57 out.png –a x,y –b x,y [–side right] [–depth 1.0] [–px 0.005]\nelev scan.e57 out.png –a x,y –b x,y [–side right]\n\nWrites .png plus .pgw (world file) and .json (metadata).\n\n\nsource\n\n\ndef main(\n    argv:NoneType=None\n):",
+    "crumbs": [
+      "ptsrv.cli"
+    ]
+  },
+  {
+    "objectID": "cli.html#cli-python--m-scanplan.cli",
+    "href": "cli.html#cli-python--m-scanplan.cli",
+    "title": "ptsrv.cli",
+    "section": "",
+    "text": "info scan.e57\nplan scan.e57 out.png [–cut 1.2] [–px 0.005] [–style hybrid] [–look up] [–scale 50]\nsection scan.e57 out.png –a x,y –b x,y [–side right] [–depth 1.0] [–px 0.005]\nelev scan.e57 out.png –a x,y –b x,y [–side right]\n\nWrites .png plus .pgw (world file) and .json (metadata).\n\n\nsource\n\n\ndef main(\n    argv:NoneType=None\n):",
+    "crumbs": [
+      "ptsrv.cli"
+    ]
+  },
+  {
+    "objectID": "index.html",
+    "href": "index.html",
+    "title": "ptsrv",
+    "section": "",
+    "text": "This file will become your README and also the index of your documentation.",
+    "crumbs": [
+      "ptsrv"
+    ]
+  },
+  {
+    "objectID": "index.html#developer-guide",
+    "href": "index.html#developer-guide",
+    "title": "ptsrv",
+    "section": "Developer Guide",
+    "text": "Developer Guide\nIf you are new to using nbdev here are some useful pointers to get you started.\n\nInstall ptsrv in Development mode\n# make sure ptsrv package is installed in development mode\n$ pip install -e .\n\n# make changes under nbs/ directory\n# ...\n\n# compile to have changes apply to ptsrv\n$ nbdev_prepare",
+    "crumbs": [
+      "ptsrv"
+    ]
+  },
+  {
+    "objectID": "index.html#usage",
+    "href": "index.html#usage",
+    "title": "ptsrv",
+    "section": "Usage",
+    "text": "Usage\n\nInstallation\nInstall latest from the GitHub repository:\n$ pip install git+https://github.com/owen-AR/ptsrv.git\nor from conda\n$ conda install -c owen-AR ptsrv\nor from pypi\n$ pip install ptsrv\n\n\nDocumentation\nDocumentation can be found hosted on this GitHub repository’s pages. Additionally you can find package manager specific guidelines on conda and pypi respectively.",
+    "crumbs": [
+      "ptsrv"
+    ]
+  },
+  {
+    "objectID": "index.html#how-to-use",
+    "href": "index.html#how-to-use",
+    "title": "ptsrv",
+    "section": "How to use",
+    "text": "How to use\nFill me in please! Don’t forget code examples:\n\n1+1\n\n2",
+    "crumbs": [
+      "ptsrv"
+    ]
+  },
+  {
+    "objectID": "core.html",
+    "href": "core.html",
+    "title": "core",
+    "section": "",
+    "text": "source\n\nfoo\ndef foo():"
+  },
+  {
+    "objectID": "cloud.html",
+    "href": "cloud.html",
+    "title": "ptsrv.cloud",
+    "section": "",
+    "text": "Dot3D writes one E57 “scan” per captured frame (hundreds of small scans, each with its own pose). pye57 applies the pose when reading, so we simply concatenate all scans into one XYZ / RGB array.\nThe loaded cloud is cached next to the E57 as an .npz so subsequent API calls are fast (numpy load of a 1M point cloud is ~50 ms vs ~0.6 s for E57 parse; for 50M+ point clouds the difference is minutes vs seconds).\n\n\nsource\n\n\ndef CloudInfo(\n    name:str, n_points:int, xmin:float, ymin:float, zmin:float, xmax:float, ymax:float, zmax:float, floor_z:float,\n    ceiling_z:float, rotation_deg:float, source:str, extra:dict=&lt;factory&gt;\n)-&gt;None:\nCloudInfo(name: ‘str’, n_points: ‘int’, xmin: ‘float’, ymin: ‘float’, zmin: ‘float’, xmax: ‘float’, ymax: ‘float’, zmax: ‘float’, floor_z: ‘float’, ceiling_z: ‘float’, rotation_deg: ‘float’, source: ‘str’, extra: ‘dict’ = )\n\n\n\n\nsource\n\n\ndef Cloud(\n    xyz:np.ndarray, rgb:np.ndarray, info:CloudInfo\n)-&gt;None:\nCloud(xyz: ‘np.ndarray’, rgb: ‘np.ndarray’, info: ‘CloudInfo’)\n\n\n\n\nsource\n\n\ndef read_e57(\n    path:str, max_points:int | None=None\n)-&gt;tuple[np.ndarray, np.ndarray]:\nRead every scan in an E57 and return (xyz float32 (N,3), rgb uint8 (N,3)).\nPoses are applied by pye57. If the file has no colour, rgb is mid-grey. If max_points is set, the cloud is randomly subsampled to that size after load (keeps memory bounded on a small server).\n\n\n\n\nsource\n\n\ndef detect_floor_ceiling(\n    z:np.ndarray, bin_size:float=0.02\n)-&gt;tuple[float, float]:\nFind floor and ceiling as the two strongest horizontal planes in the Z histogram.\nFloor = strongest peak in the lower half of the Z range, ceiling = strongest peak in the upper half. Good enough for single storey interiors; for multi storey clouds call with a Z-filtered array or set levels manually.\n\n\n\n\nsource\n\n\ndef detect_wall_rotation(\n    xyz:np.ndarray, floor_z:float, ceiling_z:float, cell:float=0.02\n)-&gt;float:\nEstimate the rotation (deg, about Z) that aligns the dominant walls with X/Y.\nTakes a horizontal band of the cloud, rasterises it to a density image, computes image gradients and finds the dominant gradient orientation modulo 90 degrees. Returns the angle to rotate the cloud by (counter- clockwise positive).\n\n\n\n\nsource\n\n\ndef rotate_z(\n    xyz:np.ndarray, deg:float, about:tuple[float, float]=(0.0, 0.0)\n)-&gt;np.ndarray:\n\n\n\n\nsource\n\n\ndef build_cloud(\n    e57_path:str, align:str | float='auto', max_points:int | None=None, name:str | None=None\n)-&gt;Cloud:\nRead an E57, detect floor/ceiling, optionally align walls, return a Cloud.\n\n\n\n\nsource\n\n\ndef load_cloud(\n    e57_path:str, align:str | float='auto', max_points:int | None=None, use_cache:bool=True\n)-&gt;Cloud:\nLoad with on-disk cache. Cache is invalidated when the E57 mtime changes.\n\n\n\n\nsource\n\n\ndef CloudCache(\n    max_items:int=2, **load_kwargs\n):\nSmall thread-safe in-memory LRU of loaded clouds for the API server.",
+    "crumbs": [
+      "ptsrv.cloud"
+    ]
+  },
+  {
+    "objectID": "cloud.html#point-cloud-loading-caching-for-e57-files-exported-from-dot3d.",
+    "href": "cloud.html#point-cloud-loading-caching-for-e57-files-exported-from-dot3d.",
+    "title": "ptsrv.cloud",
+    "section": "",
+    "text": "Dot3D writes one E57 “scan” per captured frame (hundreds of small scans, each with its own pose). pye57 applies the pose when reading, so we simply concatenate all scans into one XYZ / RGB array.\nThe loaded cloud is cached next to the E57 as an .npz so subsequent API calls are fast (numpy load of a 1M point cloud is ~50 ms vs ~0.6 s for E57 parse; for 50M+ point clouds the difference is minutes vs seconds).\n\n\nsource\n\n\ndef CloudInfo(\n    name:str, n_points:int, xmin:float, ymin:float, zmin:float, xmax:float, ymax:float, zmax:float, floor_z:float,\n    ceiling_z:float, rotation_deg:float, source:str, extra:dict=&lt;factory&gt;\n)-&gt;None:\nCloudInfo(name: ‘str’, n_points: ‘int’, xmin: ‘float’, ymin: ‘float’, zmin: ‘float’, xmax: ‘float’, ymax: ‘float’, zmax: ‘float’, floor_z: ‘float’, ceiling_z: ‘float’, rotation_deg: ‘float’, source: ‘str’, extra: ‘dict’ = )\n\n\n\n\nsource\n\n\ndef Cloud(\n    xyz:np.ndarray, rgb:np.ndarray, info:CloudInfo\n)-&gt;None:\nCloud(xyz: ‘np.ndarray’, rgb: ‘np.ndarray’, info: ‘CloudInfo’)\n\n\n\n\nsource\n\n\ndef read_e57(\n    path:str, max_points:int | None=None\n)-&gt;tuple[np.ndarray, np.ndarray]:\nRead every scan in an E57 and return (xyz float32 (N,3), rgb uint8 (N,3)).\nPoses are applied by pye57. If the file has no colour, rgb is mid-grey. If max_points is set, the cloud is randomly subsampled to that size after load (keeps memory bounded on a small server).\n\n\n\n\nsource\n\n\ndef detect_floor_ceiling(\n    z:np.ndarray, bin_size:float=0.02\n)-&gt;tuple[float, float]:\nFind floor and ceiling as the two strongest horizontal planes in the Z histogram.\nFloor = strongest peak in the lower half of the Z range, ceiling = strongest peak in the upper half. Good enough for single storey interiors; for multi storey clouds call with a Z-filtered array or set levels manually.\n\n\n\n\nsource\n\n\ndef detect_wall_rotation(\n    xyz:np.ndarray, floor_z:float, ceiling_z:float, cell:float=0.02\n)-&gt;float:\nEstimate the rotation (deg, about Z) that aligns the dominant walls with X/Y.\nTakes a horizontal band of the cloud, rasterises it to a density image, computes image gradients and finds the dominant gradient orientation modulo 90 degrees. Returns the angle to rotate the cloud by (counter- clockwise positive).\n\n\n\n\nsource\n\n\ndef rotate_z(\n    xyz:np.ndarray, deg:float, about:tuple[float, float]=(0.0, 0.0)\n)-&gt;np.ndarray:\n\n\n\n\nsource\n\n\ndef build_cloud(\n    e57_path:str, align:str | float='auto', max_points:int | None=None, name:str | None=None\n)-&gt;Cloud:\nRead an E57, detect floor/ceiling, optionally align walls, return a Cloud.\n\n\n\n\nsource\n\n\ndef load_cloud(\n    e57_path:str, align:str | float='auto', max_points:int | None=None, use_cache:bool=True\n)-&gt;Cloud:\nLoad with on-disk cache. Cache is invalidated when the E57 mtime changes.\n\n\n\n\nsource\n\n\ndef CloudCache(\n    max_items:int=2, **load_kwargs\n):\nSmall thread-safe in-memory LRU of loaded clouds for the API server.",
+    "crumbs": [
+      "ptsrv.cloud"
+    ]
+  },
+  {
+    "objectID": "api.html",
+    "href": "api.html",
+    "title": "ptsrv.api",
+    "section": "",
+    "text": "source\n\nhealth\ndef health():\n\n\n\n\nsource\n\nelevation\ndef elevation(\n    name:str, a:str, b:str, side:str=Query(right), depth:float=Query(50.0), zmin:float | None=None,\n    zmax:float | None=None, px:float=Query(0.005), style:str=Query(hybrid), fill:float=0.03, cut_thicken:float=0.0,\n    bg:str='ffffff', scale:float | None=None, format:str='png'\n):\n\n\n\n\nsource\n\nsection\ndef section(\n    name:str, a:str, b:str, side:str=Query(right), depth:float=Query(1.0), zmin:float | None=None,\n    zmax:float | None=None, px:float=Query(0.005), style:str=Query(hybrid), fill:float=0.03, cut_band:float=0.03,\n    cut_thicken:float=0.0, bg:str='ffffff', scale:float | None=None, format:str='png'\n):\n\n\n\n\nsource\n\nplan\ndef plan(\n    name:str, cut:float=Query(1.2), level:float | None=None, below:float | None=None, look:str=Query(down),\n    bounds:str | None=None, px:float=Query(0.005), style:str=Query(hybrid), fill:float=0.03, cut_band:float=0.03,\n    cut_thicken:float=0.0, bg:str='ffffff', scale:float | None=None, format:str='png'\n):\n\n\n\n\nsource\n\nreload_scan\ndef reload_scan(\n    name:str\n):\n\n\n\n\nsource\n\nscan_info\ndef scan_info(\n    name:str\n):\n\n\n\n\nsource\n\nlist_scans\ndef list_scans():",
+    "crumbs": [
+      "ptsrv.api"
+    ]
+  }
+]

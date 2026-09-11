@@ -110,7 +110,6 @@ def _fill_gaps(color: np.ndarray, dbuf: np.ndarray, radius_px: int):
     """Fill empty pixels from the nearest filled pixel within radius_px."""
     if radius_px <= 0:
         return color, dbuf
-    from scipy import ndimage
     filled = np.isfinite(dbuf)
     if filled.all() or not filled.any():
         return color, dbuf
@@ -177,7 +176,6 @@ def _draw_cut(out: np.ndarray, u: np.ndarray, v: np.ndarray, u0: float, v1: floa
     mask = np.zeros((h, w), bool)
     mask[iy[ok], ix[ok]] = True
     if thicken_px > 0:
-        from scipy import ndimage
         mask = ndimage.binary_dilation(mask, iterations=thicken_px)
     out[mask] = colour
     return out

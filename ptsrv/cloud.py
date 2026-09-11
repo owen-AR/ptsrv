@@ -14,6 +14,7 @@ import threading
 from collections import OrderedDict
 from dataclasses import dataclass, asdict, field
 import numpy as np
+import pye57
 
 # %% auto #0
 __all__ = ['CACHE_VERSION', 'CloudInfo', 'Cloud', 'read_e57', 'detect_floor_ceiling', 'detect_wall_rotation', 'rotate_z',
@@ -57,7 +58,6 @@ def read_e57(path: str, max_points: int | None = None) -> tuple[np.ndarray, np.n
     If max_points is set, the cloud is randomly subsampled to that size after
     load (keeps memory bounded on a small server).
     """
-    import pye57  # imported lazily so the rest of the package works without it
 
     e57 = pye57.E57(path)
     xs, cs = [], []
